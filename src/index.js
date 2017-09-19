@@ -81,7 +81,7 @@ function start (dir, file) {
     win.webContents.on('did-finish-load', () => {
       runAndSend(file, win)
 
-      const watcher = chokidar.watch(file)
+      const watcher = chokidar.watch(dir + '/**/*.js')
       watcher.on('change', () => {
         console.log('File changed:', file)
         runAndSend(file, win)
