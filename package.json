@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "src/index.js",
+  "bin": {
+    "snapnode": "bin/snapnode.js"
+  },
   "scripts": {
     "start": "electron .",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -16,6 +19,9 @@
     "babel-register": "^6.26.0"
   },
   "dependencies": {
+    "chokidar": "^1.7.0",
+    "diff": "^3.3.1",
+    "mkdirp": "^0.5.1",
     "react": "^15.6.1",
     "react-dom": "^15.6.1"
   }
