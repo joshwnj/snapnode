@@ -1,7 +1,7 @@
 {
   "name": "snapnode",
-  "version": "1.0.0",
-  "description": "",
+  "version": "0.1.0",
+  "description": "run your node in snapshot mode",
   "main": "src/index.js",
   "bin": {
     "snapnode": "bin/snapnode.js"
