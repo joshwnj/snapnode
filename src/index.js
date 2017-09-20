@@ -79,17 +79,23 @@ function start (dir, file) {
     win.loadURL(`file:///${entryPath}`)
 
     win.webContents.on('did-finish-load', () => {
+      setupWinOnce(win)
       runAndSend(file, win)
-
-      const watcher = chokidar.watch(dir + '/**/*.js')
-      watcher.on('change', () => {
-        console.log('File changed:', file)
-        runAndSend(file, win)
-      })
     })
   })
 
   // ----
+
+  function setupWinOnce (win) {
+    // noop
+    setupWinOnce = () => {}
+
+    const watcher = chokidar.watch(dir + '/**/*.js')
+    watcher.on('change', () => {
+      console.log('File changed:', file)
+      runAndSend(file, win)
+    })
+  }
 
   function addData (data) {
     if (!state.base) {
