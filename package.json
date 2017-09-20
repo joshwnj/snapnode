@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "chokidar": "^1.7.0",
+    "cmz": "^3.5.2",
     "diff": "^3.3.1",
     "mkdirp": "^0.5.1",
     "react": "^15.6.1",
