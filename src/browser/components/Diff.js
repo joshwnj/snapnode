@@ -43,11 +43,26 @@ const UpdateButton = elem.button(cmz(`
 })
 
 export default class Diff extends PureComponent {
+  constructor (props) {
+    super(props)
+    this.renderPart = this.renderPart.bind(this)
+  }
+
   hasDiff () {
     const { base, latest } = this.props
     if (!latest) { return false }
 
     return base.data !== latest.data
+  }
+
+  renderPart (part, index) {
+    if (part.added) {
+      return <ins key={index}>{part.value}</ins>
+    } else if (part.removed) {
+      return <del key={index}>{part.value}</del>
+    } else {
+      return <span key={index}>{part.value}</span>
+    }
   }
 
   render () {
@@ -75,17 +90,7 @@ export default class Diff extends PureComponent {
         onClick: this.props.update
       }),
 
-      Output(
-        info.map((part, index) => {
-          if (part.added) {
-            return <ins key={index}>{part.value}</ins>
-          } else if (part.removed) {
-            return <del key={index}>{part.value}</del>
-          } else {
-            return <span key={index}>{part.value}</span>
-          }
-        })
-      )
+      Output(info.map(this.renderPart))
     )
   }
 }
