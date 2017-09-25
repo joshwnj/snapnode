@@ -2,11 +2,12 @@
   "name": "snapnode",
   "version": "0.2.0",
   "description": "run your node in snapshot mode",
-  "main": "src/index.js",
+  "main": "lib/index.js",
   "bin": {
     "snapnode": "bin/snapnode.js"
   },
   "scripts": {
+    "build": "babel --copy-files -d lib src",
     "start": "electron .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -14,6 +15,8 @@
   "author": "joshwnj",
   "license": "MIT",
   "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-plugin-cmz-names": "^1.3.0",
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-react": "^6.24.1",
     "babel-register": "^6.26.0"
