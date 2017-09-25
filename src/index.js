@@ -119,8 +119,7 @@ function start (dir, file) {
   function runAndSend (file, win) {
     runScript(file, (err, data) => {
       if (err) {
-        console.log('err', data.toString('utf8'))
-        return
+        data = err
       }
 
       try {
