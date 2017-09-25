@@ -90,6 +90,13 @@ function start (dir, file) {
     // noop
     setupWinOnce = () => {}
 
+    ipcMain.on('update', (event) => {
+      state.base = Object.assign({}, state.latest)
+      writeBase(snapDir, file, state.base)
+
+      win.webContents.send('state', JSON.stringify(state))
+    })
+
     const watcher = chokidar.watch(dir + '/**/*.js')
     watcher.on('change', () => {
       console.log('File changed:', file)
