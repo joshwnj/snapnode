@@ -17,24 +17,22 @@ const Output = elem.div(cmz(`
   padding: 1rem;
 }
 
-& > ins {
+& > * {
   text-decoration: none;
-  background: lightgreen;
   color: #000;
   padding: 0.1rem;
 }
 
+& > ins {
+  background: lightgreen;
+}
+
 & > del {
-  text-decoration: none;
   background: salmon;
-  color: #000;
-  padding: 0.1rem;
 }
 
 & > span {
   background: lightgray;
-  color: #000;
-  padding: 0.1rem;
 }
 `))
 
