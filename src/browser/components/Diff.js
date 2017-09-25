@@ -50,7 +50,6 @@ export default class Diff extends PureComponent {
 
     if (!this.hasDiff()) {
       return Root(
-        <div>No change</div>,
         Output(base.data)
       )
     }

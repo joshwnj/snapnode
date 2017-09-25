@@ -2,31 +2,30 @@ import React, { PureComponent } from 'react'
 
 import cmz from 'cmz'
 import elem from '../elem'
+import relative from 'relative-date'
 
 const Root = elem.div(cmz(`
   font-family: sans-serif
+  padding: 0.5rem 1rem;
 `))
 
 const Name = elem.div(cmz(`
   font-weight: bold
+  margin: 0.5rem 0
 `))
 
 const Base = elem.div()
-
-const Latest = elem.div()
 
 export default class Info extends PureComponent {
   render () {
     const {
       name,
-      base,
-      latest
+      base
     } = this.props
 
     return Root(
       Name(name),
-      Base(`Base recorded at: ${base.recordedAt}`),
-      latest && Latest(`Latest recorded at: ${latest.recordedAt}`)
+      Base(relative(base.recordedAt))
     )
   }
 }
