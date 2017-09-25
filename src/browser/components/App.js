@@ -7,10 +7,29 @@ import Diff from './Diff'
 
 const ipc = require('electron').ipcRenderer
 
+cmz(`
+body {
+  margin: 0;
+  padding: 0;
+  background: hsl(220, 30%, 10%);
+  color: hsl(220, 50%, 90%);
+}
+`)
+
+function normalizeSnapshotInfo (info) {
+  if (!info) { return null }
+
+  if (typeof info.recordedAt === 'string') {
+    info.recordedAt = new Date(info.recordedAt)
+  }
+
+  return info
+}
+
 class App extends PureComponent {
   render () {
     const { isRunning } = this.props
-    
+
     if (isRunning) {
       return <div>Running...</div>
     }
@@ -37,6 +56,12 @@ class AppContainer extends Component {
       base: null,
       latest: null
     }
+
+    this.update = this.update.bind(this)
+  }
+
+  update () {
+    ipc.send('update')
   }
 
   componentWillMount () {
@@ -45,14 +70,17 @@ class AppContainer extends Component {
       this.setState({
         isRunning: false,
         name: data.name,
-        base: data.base,
-        latest: data.latest
+        base: normalizeSnapshotInfo(data.base),
+        latest: normalizeSnapshotInfo(data.latest)
       })
     })
   }
 
   render () {
-    return <App {...this.state} />
+    return <App
+      {...this.state}
+      update={this.update}
+      />
   }
 }
 
