@@ -4,6 +4,7 @@ import cmz from 'cmz'
 import elem from '../util/elem'
 import Info from './Info'
 import Diff from './Diff'
+import colors from '../styles/colors'
 
 const ipc = require('electron').ipcRenderer
 
@@ -11,10 +12,22 @@ cmz(`
 body {
   margin: 0;
   padding: 0;
-  background: hsl(220, 30%, 10%);
-  color: hsl(220, 50%, 90%);
+  background: ${colors.darkBg};
+  color: ${colors.text};
+}
+
+html,
+body,
+#root {
+  height: 100%;
 }
 `)
+
+const Layout = elem.div(cmz(`
+  display: flex
+  height: 100%
+  flex-direction: column
+`))
 
 function normalizeSnapshotInfo (info) {
   if (!info) { return null }
@@ -34,15 +47,10 @@ class App extends PureComponent {
       return <div>Running...</div>
     }
 
-    const {
-      base,
-      latest
-    } = this.props
-
-    return <div>
-      <Info {...this.props} />
+    return Layout(
+      <Info {...this.props} />,
       <Diff {...this.props} />
-    </div>
+    )
   }
 }
 
