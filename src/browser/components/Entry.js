@@ -3,6 +3,7 @@ import cmz from 'cmz'
 import elem from '../util/elem'
 import hasDiff from '../util/has-diff'
 import colors from '../styles/colors'
+import { monospace } from '../styles'
 
 const EntryDiv = elem(cmz(`
   padding: 1rem
@@ -22,6 +23,15 @@ const Marker = elem.span(cmz(`
   background: ${colors.red}
 `))
 
+const Heading = elem.div(cmz(`
+  display: inline-block
+  vertical-align: middle
+`))
+
+const Func = elem.div([ monospace, cmz(`
+  font-size: 0.8rem
+`)])
+
 export default class Entry extends PureComponent {
   constructor (props) {
     super(props)
@@ -38,6 +48,7 @@ export default class Entry extends PureComponent {
       selected,
       index,
       file,
+      func,
       base,
       latest
     } = this.props
@@ -45,13 +56,18 @@ export default class Entry extends PureComponent {
     const diffMarker = hasDiff(base, latest) && Marker()
     const className = selected === index ? highlight : ''
 
+    const heading = Heading(
+      file,
+      func && Func(`${func}()`)
+    )
+
     return EntryDiv(
       {
         className,
         onClick: this.onClick
       },
       diffMarker,
-      file
+      heading
     )
   }
 }

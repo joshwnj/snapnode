@@ -31,14 +31,20 @@ const UpdateButton = elem.button(cmz(`
 export default class Info extends PureComponent {
   render () {
     const {
+      module,
+      func,
       args,
       base,
       name,
       latest
     } = this.props
 
+    const heading = module
+      ? Args(`${name} ${func}()`)
+      : Args(`node ${name} `, args)
+
     return Root(
-      Args('node ', name, ' ', args),
+      heading,
       Base(relative(base.recordedAt)),
 
       hasDiff(base, latest) && UpdateButton({

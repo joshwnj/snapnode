@@ -3,7 +3,7 @@ const mkdirp = require('mkdirp')
 const chokidar = require('chokidar')
 const readBase = require('./read-base')
 const writeBase = require('./write-base')
-const runScript = require('./run-script')
+const run = require('./run')
 const {
   app,
   BrowserWindow,
@@ -74,9 +74,8 @@ function start (dir, file) {
 
   function runAndSend (entries, index, win) {
     const entry = entries[index]
-    const { file, args } = entry
 
-    runScript(file, args, (err, data) => {
+    run(entry, (err, data) => {
       if (err) {
         data = err
       }
