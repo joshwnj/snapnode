@@ -2,6 +2,7 @@ import React, { Component, PureComponent } from 'react'
 
 import cmz from 'cmz'
 import elem from '../util/elem'
+import Entry from './Entry'
 import Info from './Info'
 import Diff from './Diff'
 import colors from '../styles/colors'
@@ -14,6 +15,7 @@ body {
   padding: 0;
   background: ${colors.darkBg};
   color: ${colors.text};
+  font-family: sans-serif;
 }
 
 html,
@@ -23,11 +25,19 @@ body,
 }
 `)
 
-const Layout = elem.div(cmz(`
+const flex = cmz(`
   display: flex
   height: 100%
+`)
+
+const Layout = elem.div([ flex, cmz(`
+  flex-direction: row
+`)])
+
+const Main = elem.div([ flex, cmz(`
   flex-direction: column
-`))
+  flex-grow: 1
+`)])
 
 const DiffWrapper = elem.div(cmz(`
   border-top: 1px solid ${colors.border};
@@ -46,17 +56,48 @@ function normalizeSnapshotInfo (info) {
   return info
 }
 
+const EntryList = elem(cmz(`
+  border-right: 1px solid ${colors.border}
+`))
+
 class App extends PureComponent {
+  constructor (props) {
+    super(props)
+
+    this.renderEntry = this.renderEntry.bind(this)
+  }
+
+  renderEntry (entry, key) {
+    return <Entry
+      key={key}
+      index={key}
+      selected={this.props.selected}
+      selectEntry={this.props.selectEntry}
+      {...entry}
+      />
+  }
+
   render () {
-    const { isRunning } = this.props
+    const {
+      isRunning,
+      entries,
+      selected,
+      unified,
+      update
+    } = this.props
 
     if (isRunning) {
       return <div>Running...</div>
     }
 
+    const entry = entries[selected]
+
     return Layout(
-      <Info {...this.props} />,
-      DiffWrapper(<Diff {...this.props} />)
+      EntryList(entries.map(this.renderEntry)),
+      Main(
+        <Info {...entry} update={update} />,
+        DiffWrapper(<Diff unified={unified} {...entry} />)
+      )
     )
   }
 }
@@ -67,18 +108,31 @@ class AppContainer extends Component {
 
     this.state = {
       isRunning: true,
-      name: '',
-      args: [],
-      base: null,
-      latest: null,
+      entries: [],
+      selected: 0,
       unified: true
     }
 
     this.update = this.update.bind(this)
+    this.selectEntry = this.selectEntry.bind(this)
   }
 
   update () {
-    ipc.send('update')
+    ipc.send('update', this.state.selected)
+  }
+
+  selectEntry (selected) {
+    this.setState({ selected })
+  }
+
+  selectDelta (d) {
+    const len = this.state.entries.length
+    let next = (this.state.selected + d) % len
+    if (next < 0) { next = len - 1 }
+
+    this.setState({
+      selected: next
+    })
   }
 
   componentWillMount () {
@@ -86,20 +140,34 @@ class AppContainer extends Component {
       const data = JSON.parse(raw)
       this.setState({
         isRunning: false,
-        name: data.name,
-        args: data.args,
-        base: normalizeSnapshotInfo(data.base),
-        latest: normalizeSnapshotInfo(data.latest)
+        entries: data.entries
       })
+    })
+
+    ipc.on('results', (event, raw) => {
+      const { index, entry } = JSON.parse(raw)
+
+      entry.base = normalizeSnapshotInfo(entry.base)
+      entry.latest = normalizeSnapshotInfo(entry.latest)
+
+      const entries = this.state.entries.slice()
+      entries[index] = entry
+      this.setState({ entries })
     })
 
     window.onkeypress = (event) => {
       switch (event.key) {
         case '|':
         case '\\':
-          this.setState({
+          return this.setState({
             unified: !this.state.unified
           })
+
+        case 'j':
+          return this.selectDelta(1)
+
+        case 'k':
+          return this.selectDelta(-1)
       }
     }
   }
@@ -108,6 +176,7 @@ class AppContainer extends Component {
     return <App
       {...this.state}
       update={this.update}
+      selectEntry={this.selectEntry}
       />
   }
 }
