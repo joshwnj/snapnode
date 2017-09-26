@@ -37,11 +37,7 @@ const Output = elem.div(cmz(`
 }
 `))
 
-const UpdateButton = elem.button(cmz(`
-  margin: 1rem 0 0 1rem;
-`), {
-  children: 'Update'
-})
+const LeftPane = elem.div(cmz(`
 
 export default class Diff extends PureComponent {
   constructor (props) {
@@ -79,10 +75,6 @@ export default class Diff extends PureComponent {
       latest.data
     )
 
-    return Root(
-      UpdateButton({
-        onClick: this.props.update
-      }),
 
       Output(info.map(this.renderPart))
     )

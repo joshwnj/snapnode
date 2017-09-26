@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react'
 
 import cmz from 'cmz'
 import elem from '../util/elem'
+import hasDiff from '../util/has-diff'
 import relative from 'relative-date'
 
 const Root = elem.div(cmz(`
@@ -16,16 +17,29 @@ const Name = elem.div(cmz(`
 
 const Base = elem.div()
 
+const UpdateButton = elem.button(cmz(`
+  position: absolute
+  top: 1rem
+  right: 1rem
+`), {
+  children: 'Update'
+})
+
 export default class Info extends PureComponent {
   render () {
     const {
       name,
-      base
+      base,
+      latest
     } = this.props
 
     return Root(
       Name(name),
-      Base(relative(base.recordedAt))
+      Base(relative(base.recordedAt)),
+
+      hasDiff(base, latest) && UpdateButton({
+        onClick: this.props.update
+      })
     )
   }
 }
