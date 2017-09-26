@@ -25,7 +25,7 @@ _run your node in snapshot mode_
 
 ### power user
 
-- when there is a diff you can press the `|` key to toggle between a unified diff and a split left/right view.
+- when there is a diff you can press the `\` (or `|`)  key to toggle between a unified diff and a split left/right view.
 
 ## what's next
 

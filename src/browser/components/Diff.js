@@ -5,20 +5,19 @@ import elem from '../util/elem'
 import hasDiff from '../util/has-diff'
 import colors from '../styles/colors'
 
-const Root = elem.div(cmz(`
-  border-top: 1px solid ${colors.border};
-  margin: 1rem 0 0 0;
-  flex-grow: 1;
-  display: flex;
-`))
+const monospace = cmz(`
+  font-family: "Fantasque Sans Mono", monospace
+  white-space: pre
+  padding: 1rem
+`)
 
-const Output = elem.div(cmz(`
-& {
-  font-family: "Fantasque Sans Mono", monospace;
-  white-space: pre;
-  padding: 1rem;
-}
+const scroll = cmz(`
+  overflow: auto
+`)
 
+const Output = elem.div([ monospace, scroll ])
+
+const UnifiedView = elem.div(cmz([ monospace, scroll, `
 & > * {
   text-decoration: none;
   color: #000;
@@ -36,7 +35,7 @@ const Output = elem.div(cmz(`
 & > span {
   background: ${colors.grey};
 }
-`))
+`]))
 
 const SplitView = elem.div(cmz(`
 & {
@@ -47,14 +46,10 @@ const SplitView = elem.div(cmz(`
 & > div {
   width: 50%;
 }
-`))
 
-const LeftPane = elem.div(cmz(`
+& > div:first-child {
   border-right: 1px solid ${colors.border}
-`))
-
-const RightPane = elem.div(cmz(`
-
+}
 `))
 
 export default class Diff extends PureComponent {
@@ -80,16 +75,8 @@ export default class Diff extends PureComponent {
       unified
     } = this.props
 
-    if (!latest) {
-      return Root(
-        Output(base.data)
-      )
-    }
-
     if (!hasDiff(base, latest)) {
-      return Root(
-        Output(base.data)
-      )
+      return Output(base.data)
     }
 
     if (unified) {
@@ -98,21 +85,12 @@ export default class Diff extends PureComponent {
         latest.data
       )
 
-      return Root(
-        Output(info.map(this.renderPart))
-      )
-    } else {
-      return Root(
-        SplitView(
-          LeftPane(
-            Output(base.data)
-          ),
-
-          RightPane(
-            Output(latest.data)
-          )
-        )
-      )
+      return UnifiedView(info.map(this.renderPart))
     }
+
+    return SplitView(
+      Output(base.data),
+      Output(latest.data)
+    )
   }
 }

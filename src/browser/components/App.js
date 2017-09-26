@@ -29,6 +29,13 @@ const Layout = elem.div(cmz(`
   flex-direction: column
 `))
 
+const DiffWrapper = elem.div(cmz(`
+  border-top: 1px solid ${colors.border};
+  margin: 1rem 0 0 0;
+  flex-grow: 1;
+  display: flex;
+`))
+
 function normalizeSnapshotInfo (info) {
   if (!info) { return null }
 
@@ -49,7 +56,7 @@ class App extends PureComponent {
 
     return Layout(
       <Info {...this.props} />,
-      <Diff {...this.props} />
+      DiffWrapper(<Diff {...this.props} />)
     )
   }
 }
@@ -87,6 +94,7 @@ class AppContainer extends Component {
     window.onkeypress = (event) => {
       switch (event.key) {
         case '|':
+        case '\\':
           this.setState({
             unified: !this.state.unified
           })
