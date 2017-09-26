@@ -3,12 +3,13 @@ import { diffChars } from 'diff'
 import cmz from 'cmz'
 import elem from '../util/elem'
 import hasDiff from '../util/has-diff'
+import colors from '../styles/colors'
 
 const Root = elem.div(cmz(`
-& {
-  border-top: 1px solid hsl(220, 10%, 20%);
-  margin: 1rem 0;
-}
+  border-top: 1px solid ${colors.border};
+  margin: 1rem 0 0 0;
+  flex-grow: 1;
+  display: flex;
 `))
 
 const Output = elem.div(cmz(`
@@ -25,19 +26,36 @@ const Output = elem.div(cmz(`
 }
 
 & > ins {
-  background: lightgreen;
+  background: ${colors.green};
 }
 
 & > del {
-  background: salmon;
+  background: ${colors.red};
 }
 
 & > span {
-  background: lightgray;
+  background: ${colors.grey};
+}
+`))
+
+const SplitView = elem.div(cmz(`
+& {
+  display: flex;
+  width: 100%;
+}
+
+& > div {
+  width: 50%;
 }
 `))
 
 const LeftPane = elem.div(cmz(`
+  border-right: 1px solid ${colors.border}
+`))
+
+const RightPane = elem.div(cmz(`
+
+`))
 
 export default class Diff extends PureComponent {
   constructor (props) {
@@ -56,7 +74,11 @@ export default class Diff extends PureComponent {
   }
 
   render () {
-    const { base, latest } = this.props
+    const {
+      base,
+      latest,
+      unified
+    } = this.props
 
     if (!latest) {
       return Root(
@@ -70,13 +92,27 @@ export default class Diff extends PureComponent {
       )
     }
 
-    const info = diffChars(
-      base.data,
-      latest.data
-    )
+    if (unified) {
+      const info = diffChars(
+        base.data,
+        latest.data
+      )
 
+      return Root(
+        Output(info.map(this.renderPart))
+      )
+    } else {
+      return Root(
+        SplitView(
+          LeftPane(
+            Output(base.data)
+          ),
 
-      Output(info.map(this.renderPart))
-    )
+          RightPane(
+            Output(latest.data)
+          )
+        )
+      )
+    }
   }
 }
