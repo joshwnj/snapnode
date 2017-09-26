@@ -14,11 +14,12 @@ const browserPath = path.resolve(path.join(__dirname, 'browser', 'index.html'))
 
 // ----
 
-function normalizeEntry (snapDir, entry) {
+function normalizeEntry (snapDir, entry, index) {
   if (!entry.name) { entry.name = entry.file }
   if (!entry.args) { entry.args = [] }
 
-  entry.base = readBase(snapDir, entry.file)
+  entry.index = index
+  entry.base = readBase(snapDir, entry)
 
   return entry
 }
@@ -47,7 +48,7 @@ function start (dir, file) {
     ipcMain.on('update', (event, index) => {
       const entry = state.entries[index]
       entry.base = Object.assign({}, entry.latest)
-      writeBase(snapDir, entry.file, entry.base)
+      writeBase(snapDir, entry)
 
       win.webContents.send('results', JSON.stringify({ index, entry }))
     })
@@ -99,7 +100,7 @@ function start (dir, file) {
         data
       }
 
-      writeBase(snapDir, entry.file, entry.base)
+      writeBase(snapDir, entry)
       return
     }
 

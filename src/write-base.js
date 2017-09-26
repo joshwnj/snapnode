@@ -1,8 +1,9 @@
 const fs = require('fs')
 const path = require('path')
 
-module.exports = function writeBase (snapDir, file, base) {
-  fs.writeFile(path.join(snapDir, file), JSON.stringify(base), (err) => {
+module.exports = function writeBase (snapDir, { file, index, base }) {
+  const filename = `${file}-${index}`
+  fs.writeFile(path.join(snapDir, filename), JSON.stringify(base), (err) => {
     if (err) {
       console.error(err)
     } else {
