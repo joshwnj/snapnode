@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react'
+import { PureComponent } from 'react'
 
 import cmz from 'cmz'
 import elem from '../util/elem'

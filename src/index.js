@@ -26,8 +26,7 @@ function writeBase (snapDir, file, base) {
   fs.writeFile(path.join(snapDir, file), JSON.stringify(base), (err) => {
     if (err) {
       console.error(err)
-    }
-    else {
+    } else {
       console.log('Wrote base snapshot for', file)
     }
   })
@@ -39,13 +38,19 @@ function runScript (file, cb) {
 
   const child = spawn('node', [ file ])
   child.stdout.on('data', (data) => {
-    if (result === undefined) { result = data }
-    else { result += data }
+    if (result === undefined) {
+      result = data
+    } else {
+      result += data
+    }
   })
 
   child.stderr.on('data', (data) => {
-    if (err === undefined) { err = data }
-    else { err += data }
+    if (err === undefined) {
+      err = data
+    } else {
+      err += data
+    }
   })
 
   child.on('close', (code) => {
@@ -78,18 +83,6 @@ function start (dir, file) {
 
     win.loadURL(`file:///${entryPath}`)
 
-    win.webContents.on('did-finish-load', () => {
-      setupWinOnce(win)
-      runAndSend(file, win)
-    })
-  })
-
-  // ----
-
-  function setupWinOnce (win) {
-    // noop
-    setupWinOnce = () => {}
-
     ipcMain.on('update', (event) => {
       state.base = Object.assign({}, state.latest)
       writeBase(snapDir, file, state.base)
@@ -102,7 +95,13 @@ function start (dir, file) {
       console.log('File changed:', file)
       runAndSend(file, win)
     })
-  }
+
+    win.webContents.on('did-finish-load', () => {
+      runAndSend(file, win)
+    })
+  })
+
+  // ----
 
   function addData (data) {
     if (!state.base) {
