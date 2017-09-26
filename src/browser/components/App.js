@@ -54,7 +54,8 @@ class AppContainer extends Component {
       isRunning: true,
       name: '',
       base: null,
-      latest: null
+      latest: null,
+      unified: true
     }
 
     this.update = this.update.bind(this)
@@ -74,6 +75,15 @@ class AppContainer extends Component {
         latest: normalizeSnapshotInfo(data.latest)
       })
     })
+
+    window.onkeypress = (event) => {
+      switch (event.key) {
+        case '|':
+          this.setState({
+            unified: !this.state.unified
+          })
+      }
+    }
   }
 
   render () {
