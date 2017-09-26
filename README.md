@@ -25,6 +25,8 @@ _run your node in snapshot mode_
 
 ### power user
 
+- `j` and `k` move to the next and previous snapshot in the list.
+
 - when there is a diff you can press the `\` (or `|`)  key to toggle between a unified diff and a split left/right view.
 
 ## what's next
