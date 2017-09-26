@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react'
 import { diffChars } from 'diff'
 import cmz from 'cmz'
 import elem from '../util/elem'
+import hasDiff from '../util/has-diff'
 
 const Root = elem.div(cmz(`
 & {
@@ -48,13 +49,6 @@ export default class Diff extends PureComponent {
     this.renderPart = this.renderPart.bind(this)
   }
 
-  hasDiff () {
-    const { base, latest } = this.props
-    if (!latest) { return false }
-
-    return base.data !== latest.data
-  }
-
   renderPart (part, index) {
     if (part.added) {
       return <ins key={index}>{part.value}</ins>
@@ -74,7 +68,7 @@ export default class Diff extends PureComponent {
       )
     }
 
-    if (!this.hasDiff()) {
+    if (!hasDiff(base, latest)) {
       return Root(
         Output(base.data)
       )
