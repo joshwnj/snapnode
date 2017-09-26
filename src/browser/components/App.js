@@ -1,7 +1,7 @@
 import React, { Component, PureComponent } from 'react'
 
 import cmz from 'cmz'
-import elem from '../elem'
+import elem from '../util/elem'
 import Info from './Info'
 import Diff from './Diff'
 

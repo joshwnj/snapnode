@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react'
 
 import cmz from 'cmz'
-import elem from '../elem'
+import elem from '../util/elem'
 import relative from 'relative-date'
 
 const Root = elem.div(cmz(`

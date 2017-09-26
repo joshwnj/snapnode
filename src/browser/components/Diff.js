@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react'
 import { diffChars } from 'diff'
 import cmz from 'cmz'
-import elem from '../elem'
+import elem from '../util/elem'
 
 const Root = elem.div(cmz(`
 & {
