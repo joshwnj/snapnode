@@ -32,11 +32,11 @@ function writeBase (snapDir, file, base) {
   })
 }
 
-function runScript (file, cb) {
+function runScript (file, args, cb) {
   var result
   var err
 
-  const child = spawn('node', [ file ])
+  const child = spawn('node', [ file, ...args ])
   child.stdout.on('data', (data) => {
     if (result === undefined) {
       result = data
@@ -62,8 +62,8 @@ function runScript (file, cb) {
   })
 }
 
-function start (dir, file) {
-  console.log('starting', dir, file)
+function start (dir, file, args) {
+  console.log('starting', dir, file, ...args)
 
   // TODO: maybe put this in a tmp dir instead
   const snapDir = path.join(dir, '.snapnode')
@@ -71,6 +71,7 @@ function start (dir, file) {
 
   const state = {
     name: file,
+    args,
     base: readBase(snapDir, file),
     latest: null
   }
@@ -93,11 +94,11 @@ function start (dir, file) {
     const watcher = chokidar.watch(dir + '/**/*.js')
     watcher.on('change', () => {
       console.log('File changed:', file)
-      runAndSend(file, win)
+      runAndSend(file, args, win)
     })
 
     win.webContents.on('did-finish-load', () => {
-      runAndSend(file, win)
+      runAndSend(file, args, win)
     })
   })
 
@@ -122,8 +123,8 @@ function start (dir, file) {
     }
   }
 
-  function runAndSend (file, win) {
-    runScript(file, (err, data) => {
+  function runAndSend (file, args, win) {
+    runScript(file, args, (err, data) => {
       if (err) {
         data = err
       }

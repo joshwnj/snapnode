@@ -4,20 +4,18 @@ import cmz from 'cmz'
 import elem from '../util/elem'
 import hasDiff from '../util/has-diff'
 import colors from '../styles/colors'
+import {
+  monospace,
+  scroll
+} from '../styles'
 
-const monospace = cmz(`
-  font-family: "Fantasque Sans Mono", monospace
-  white-space: pre
+const code = cmz([ monospace, scroll, `
   padding: 1rem
-`)
+`])
 
-const scroll = cmz(`
-  overflow: auto
-`)
+const Output = elem.div(code)
 
-const Output = elem.div([ monospace, scroll ])
-
-const UnifiedView = elem.div(cmz([ monospace, scroll, `
+const UnifiedView = elem.div(cmz([ code, `
 & > * {
   text-decoration: none;
   color: #000;

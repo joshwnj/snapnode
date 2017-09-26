@@ -68,6 +68,7 @@ class AppContainer extends Component {
     this.state = {
       isRunning: true,
       name: '',
+      args: [],
       base: null,
       latest: null,
       unified: true
@@ -86,6 +87,7 @@ class AppContainer extends Component {
       this.setState({
         isRunning: false,
         name: data.name,
+        args: data.args,
         base: normalizeSnapshotInfo(data.base),
         latest: normalizeSnapshotInfo(data.latest)
       })
