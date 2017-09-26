@@ -13,7 +13,7 @@ cmz(`
 body {
   margin: 0;
   padding: 0;
-  background: ${colors.darkBg};
+  background: ${colors.bg};
   color: ${colors.text};
   font-family: sans-serif;
 }

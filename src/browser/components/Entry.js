@@ -11,7 +11,7 @@ const EntryDiv = elem(cmz(`
 `))
 
 const highlight = cmz(`
-  background: rgba(0,0,0,0.3)
+  background: ${colors.highlight}
 `)
 
 const Marker = elem.span(cmz(`
