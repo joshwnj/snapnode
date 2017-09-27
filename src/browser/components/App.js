@@ -79,22 +79,17 @@ class App extends PureComponent {
 
   render () {
     const {
-      isRunning,
       entries,
       selected,
       unified,
       update
     } = this.props
 
-    if (isRunning) {
-      return <div>Running...</div>
-    }
-
     const entry = entries[selected]
 
     return Layout(
       EntryList(entries.map(this.renderEntry)),
-      Main(
+      entry && Main(
         <Info {...entry} update={update} />,
         DiffWrapper(<Diff unified={unified} {...entry} />)
       )
@@ -107,7 +102,6 @@ class AppContainer extends Component {
     super(props)
 
     this.state = {
-      isRunning: true,
       entries: [],
       selected: 0,
       unified: true
@@ -139,9 +133,17 @@ class AppContainer extends Component {
     ipc.on('state', (event, raw) => {
       const data = JSON.parse(raw)
       this.setState({
-        isRunning: false,
         entries: data.entries
       })
+    })
+
+    ipc.on('loading', (event, index) => {
+      const entries = this.state.entries.slice()
+      const entry = Object.assign({}, entries[index], {
+        loading: true
+      })
+      entries[index] = entry
+      this.setState({ entries })
     })
 
     ipc.on('results', (event, raw) => {
@@ -149,6 +151,7 @@ class AppContainer extends Component {
 
       entry.base = normalizeSnapshotInfo(entry.base)
       entry.latest = normalizeSnapshotInfo(entry.latest)
+      entry.loading = false
 
       const entries = this.state.entries.slice()
       entries[index] = entry

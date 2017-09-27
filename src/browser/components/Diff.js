@@ -24,6 +24,7 @@ const UnifiedView = elem.div(cmz([ code, `
   text-decoration: none;
   color: #000;
   padding: 0.1rem;
+  line-height: 1.3;
 }
 
 & > ins {

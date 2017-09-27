@@ -14,14 +14,37 @@ const highlight = cmz(`
   background: ${colors.highlight}
 `)
 
-const Marker = elem.span(cmz(`
+const markers = {
+  base: cmz(`
   display: inline-block
   width: 0.5rem
   height: 0.5rem
   border-radius: 0.5rem
   margin-right: 0.5rem
+`),
+
+  diff: cmz(`
   background: ${colors.red}
-`))
+`),
+
+  same: cmz(`
+  background: transparent
+`),
+
+  loading: cmz(`
+& {
+  background: ${colors.grey};
+  animation: ? .5s infinite alternate;
+}
+
+@keyframes ? {
+  0% { opacity: 0; }
+  100% { opactiy: 1; }
+}
+`)
+}
+
+const Marker = elem.span(markers.base)
 
 const Heading = elem.div(cmz(`
   display: inline-block
@@ -50,10 +73,21 @@ export default class Entry extends PureComponent {
       file,
       func,
       base,
-      latest
+      latest,
+      loading
     } = this.props
 
-    const diffMarker = hasDiff(base, latest) && Marker()
+    let markerClassName
+    if (loading) {
+      markerClassName = markers.loading
+    } else if (hasDiff(base, latest)) {
+      markerClassName = markers.diff
+    }
+
+    const diffMarker = Marker({
+      className: markerClassName
+    })
+
     const className = selected === index ? highlight : ''
 
     const heading = Heading(

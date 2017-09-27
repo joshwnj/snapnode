@@ -87,6 +87,8 @@ function start (dir, file) {
   function runAndSend (entries, index, win) {
     const entry = entries[index]
 
+    win.webContents.send('loading', index)
+
     run(entry, (err, data) => {
       if (err) {
         data = err
