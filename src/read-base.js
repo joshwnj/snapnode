@@ -7,7 +7,12 @@ module.exports = function readBase (snapDir, { file, index }) {
     const raw = fs.readFileSync(path.join(snapDir, filename))
     return raw && JSON.parse(raw)
   } catch (e) {
-    console.error(e)
+    if (e.code === 'ENOENT') {
+      console.log('Base not found', filename)
+    } else {
+      console.error(e)
+    }
+
     return null
   }
 }
