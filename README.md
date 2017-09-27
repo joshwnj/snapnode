@@ -2,7 +2,7 @@
 
 _run your node in snapshot mode!_
 
-![example](./example.png)
+![example](https://github.com/joshwnj/snapnode/raw/master/example.png)
 
 ## Usage
 
