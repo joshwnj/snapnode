@@ -45,9 +45,9 @@ export default class Info extends PureComponent {
 
     return Root(
       heading,
-      Base(relative(base.recordedAt)),
+      base && Base(relative(base.recordedAt)),
 
-      hasDiff(base, latest) && UpdateButton({
+      base && hasDiff(base, latest) && UpdateButton({
         onClick: this.props.update
       })
     )
