@@ -86,9 +86,10 @@ class App extends PureComponent {
     } = this.props
 
     const entry = entries[selected]
+    const showList = entries.length > 1
 
     return Layout(
-      EntryList(entries.map(this.renderEntry)),
+      showList && EntryList(entries.map(this.renderEntry)),
       entry && Main(
         <Info {...entry} update={update} />,
         DiffWrapper(<Diff unified={unified} {...entry} />)
