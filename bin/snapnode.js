@@ -3,4 +3,4 @@
 const cwd = process.cwd()
 const file = process.argv[2]
 
-require('../lib/multi')(cwd, file)
+require('../')(cwd, file)

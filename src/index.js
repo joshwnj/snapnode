@@ -1,80 +1,57 @@
-const { spawn } = require('child_process')
 const path = require('path')
 const mkdirp = require('mkdirp')
-const fs = require('fs')
 const chokidar = require('chokidar')
+const fresh = require('fresh-require')
+const readBase = require('./read-base')
+const writeBase = require('./write-base')
+const run = require('./run')
 const {
   app,
   BrowserWindow,
   ipcMain
 } = require('electron')
 
-const entryPath = path.resolve(path.join(__dirname, 'browser', 'index.html'))
+const browserPath = path.resolve(path.join(__dirname, 'browser', 'index.html'))
+const SNAP_DIR = '.snapnode'
 
 // ----
 
-function readBase (snapDir, file) {
-  try {
-    const raw = fs.readFileSync(path.join(snapDir, file))
-    return raw && JSON.parse(raw)
-  } catch (e) {
-    return null
+function normalizeEntry (snapDir, entry, index = 0) {
+  if (!entry.args) { entry.args = [] }
+
+  entry.index = index
+  entry.base = readBase(snapDir, entry)
+
+  return entry
+}
+
+function reloadConfig (dir, file, state) {
+  const snapDir = path.join(dir, SNAP_DIR)
+  const config = fresh(path.join(dir, file), require)
+
+  // if the file doesn't export anything, treat it as a script
+  if (JSON.stringify(config) === '{}') {
+    state.entries = [
+      normalizeEntry(snapDir, {
+        file,
+        args: process.argv.slice(3)
+      })
+    ]
+    return
   }
+
+  state.entries = config.entries.map(normalizeEntry.bind(null, snapDir))
 }
 
-function writeBase (snapDir, file, base) {
-  fs.writeFile(path.join(snapDir, file), JSON.stringify(base), (err) => {
-    if (err) {
-      console.error(err)
-    } else {
-      console.log('Wrote base snapshot for', file)
-    }
-  })
-}
-
-function runScript (file, args, cb) {
-  var result
-  var err
-
-  const child = spawn('node', [ file, ...args ])
-  child.stdout.on('data', (data) => {
-    if (result === undefined) {
-      result = data
-    } else {
-      result += data
-    }
-  })
-
-  child.stderr.on('data', (data) => {
-    if (err === undefined) {
-      err = data
-    } else {
-      err += data
-    }
-  })
-
-  child.on('close', (code) => {
-    if (code !== 0 && err === undefined) {
-      err = 'Exit code: ' + code
-    }
-
-    return (err) ? cb(new Error(err)) : cb(null, result)
-  })
-}
-
-function start (dir, file, args) {
-  console.log('starting', dir, file, ...args)
+function start (dir, file) {
+  console.log('starting', dir, file)
 
   // TODO: maybe put this in a tmp dir instead
-  const snapDir = path.join(dir, '.snapnode')
+  const snapDir = path.join(dir, SNAP_DIR)
   mkdirp.sync(snapDir)
 
-  const state = {
-    name: file,
-    args,
-    base: readBase(snapDir, file),
-    latest: null
-  }
+  const state = {}
+  reloadConfig(dir, file, state)
 
   app.on('ready', () => {
     const win = new BrowserWindow({
@@ -82,62 +59,80 @@ function start (dir, file, args) {
       height: 400
     })
 
-    win.loadURL(`file:///${entryPath}`)
+    win.loadURL(`file:///${browserPath}`)
 
-    ipcMain.on('update', (event) => {
-      state.base = Object.assign({}, state.latest)
-      writeBase(snapDir, file, state.base)
+    ipcMain.on('update', (event, index) => {
+      const entry = state.entries[index]
+      entry.base = Object.assign({}, entry.latest)
+      writeBase(snapDir, entry)
 
-      win.webContents.send('state', JSON.stringify(state))
+      win.webContents.send('results', JSON.stringify({ index, entry }))
     })
 
     const watcher = chokidar.watch(dir + '/**/*.js')
-    watcher.on('change', () => {
-      console.log('File changed:', file)
-      runAndSend(file, args, win)
+    watcher.on('change', (f) => {
+      console.log('File changed:', f)
+
+      // special case: reload the config if it changed
+      if (f === path.join(dir, file)) {
+        reloadConfig(dir, file, state)
+        win.webContents.send('state', JSON.stringify(state))
+      }
+
+      // update all
+      state.entries.forEach((entry, i) => {
+        runAndSend(state.entries, i, win)
+      })
     })
 
     win.webContents.on('did-finish-load', () => {
-      runAndSend(file, args, win)
+      win.webContents.send('state', JSON.stringify(state))
+
+      // send once to start
+      state.entries.forEach((entry, i) => {
+        runAndSend(state.entries, i, win)
+      })
     })
   })
 
-  // ----
+  function runAndSend (entries, index, win) {
+    const entry = entries[index]
 
-  function addData (data) {
-    if (!state.base) {
-      state.base = {
-        recordedAt: new Date(),
-        contentType: 'text',
-        data
-      }
+    win.webContents.send('loading', index)
 
-      writeBase(snapDir, file, state.base)
-      return
-    }
-
-    state.latest = {
-      recordedAt: new Date(),
-      contentType: 'text',
-      data
-    }
-  }
-
-  function runAndSend (file, args, win) {
-    runScript(file, args, (err, data) => {
+    run(entry, (err, data) => {
       if (err) {
         data = err
       }
 
       try {
-        addData(data.toString('utf8'))
+        addData(entry, data.toString('utf8'))
 
-        win.webContents.send('state', JSON.stringify(state))
+        win.webContents.send('results', JSON.stringify({ index, entry }))
       } catch (e) {
         console.log(e)
         console.log(data.toString('utf8'))
       }
     })
+  }
+
+  function addData (entry, data) {
+    if (!entry.base) {
+      entry.base = {
+        recordedAt: new Date(),
+        contentType: 'text',
+        data
+      }
+
+      writeBase(snapDir, entry)
+      return
+    }
+
+    entry.latest = {
+      recordedAt: new Date(),
+      contentType: 'text',
+      data
+    }
   }
 }
 
