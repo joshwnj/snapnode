@@ -1,6 +1,6 @@
 {
   "name": "snapnode",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "run your node in snapshot mode",
   "main": "lib/index.js",
   "bin": {
