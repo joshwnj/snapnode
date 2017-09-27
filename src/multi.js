@@ -37,7 +37,6 @@ function start (dir, file) {
   const snapDir = path.join(dir, '.snapnode')
   mkdirp.sync(snapDir)
 
-
   const state = {}
   const pathToConfig = path.join(dir, file)
   reloadConfig(pathToConfig, snapDir, state)
