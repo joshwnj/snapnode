@@ -41,7 +41,7 @@ export default class Info extends PureComponent {
 
     const heading = module
       ? Args(`${name} ${func}()`)
-      : Args(`node ${name} `, args)
+      : Args(`node ${name} `, args.join(' '))
 
     return Root(
       heading,

@@ -1,6 +1,7 @@
 const path = require('path')
 const mkdirp = require('mkdirp')
 const chokidar = require('chokidar')
+const fresh = require('fresh-require')
 const readBase = require('./read-base')
 const writeBase = require('./write-base')
 const run = require('./run')
@@ -24,6 +25,11 @@ function normalizeEntry (snapDir, entry, index) {
   return entry
 }
 
+function reloadConfig (filename, snapDir, state) {
+  const config = fresh(filename, require)
+  state.entries = config.entries.map(normalizeEntry.bind(null, snapDir))
+}
+
 function start (dir, file) {
   console.log('starting', dir, file)
 
@@ -31,11 +37,10 @@ function start (dir, file) {
   const snapDir = path.join(dir, '.snapnode')
   mkdirp.sync(snapDir)
 
-  const suite = require(path.join(dir, file))
-  const state = {
-    multi: true,
-    entries: suite.entries.map(normalizeEntry.bind(null, snapDir))
-  }
+
+  const state = {}
+  const pathToConfig = path.join(dir, file)
+  reloadConfig(pathToConfig, snapDir, state)
 
   app.on('ready', () => {
     const win = new BrowserWindow({
@@ -56,6 +61,12 @@ function start (dir, file) {
     const watcher = chokidar.watch(dir + '/**/*.js')
     watcher.on('change', (f) => {
       console.log('File changed:', f)
+
+      // special case: reload the config if it changed
+      if (f === pathToConfig) {
+        reloadConfig(pathToConfig, snapDir, state)
+        win.webContents.send('state', JSON.stringify(state))
+      }
 
       // update all
       state.entries.forEach((entry, i) => {
