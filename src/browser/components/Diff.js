@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react'
-import { diffLines } from 'diff'
+import { diffWords, diffLines } from 'diff'
 import cmz from 'cmz'
 import elem from '../util/elem'
 import hasDiff from '../util/has-diff'
@@ -55,6 +55,10 @@ const SplitView = elem.div(cmz(`
 }
 `))
 
+function hasLines (data) {
+  return data.trim().indexOf('\n') > 0
+}
+
 export default class Diff extends PureComponent {
   constructor (props) {
     super(props)
@@ -83,7 +87,11 @@ export default class Diff extends PureComponent {
     }
 
     if (unified) {
-      const info = diffLines(
+      const diff = hasLines(base.data) || hasLines(latest.data)
+        ? diffLines
+        : diffWords
+
+      const info = diff(
         base.data,
         latest.data
       )

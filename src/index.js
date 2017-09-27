@@ -56,7 +56,8 @@ function start (dir, file) {
   app.on('ready', () => {
     const win = new BrowserWindow({
       width: 600,
-      height: 400
+      height: 400,
+      title: 'snapnode'
     })
 
     win.loadURL(`file:///${browserPath}`)
