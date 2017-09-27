@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react'
-import { diffChars } from 'diff'
+import { diffLines } from 'diff'
 import cmz from 'cmz'
 import elem from '../util/elem'
 import hasDiff from '../util/has-diff'
@@ -16,6 +16,10 @@ const code = cmz([ monospace, scroll, `
 const Output = elem.div(code)
 
 const UnifiedView = elem.div(cmz([ code, `
+& {
+  width: 100%;
+}
+
 & > * {
   text-decoration: none;
   color: #000;
@@ -78,7 +82,7 @@ export default class Diff extends PureComponent {
     }
 
     if (unified) {
-      const info = diffChars(
+      const info = diffLines(
         base.data,
         latest.data
       )
