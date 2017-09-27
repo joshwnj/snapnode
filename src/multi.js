@@ -12,11 +12,11 @@ const {
 } = require('electron')
 
 const browserPath = path.resolve(path.join(__dirname, 'browser', 'index.html'))
+const SNAP_DIR = '.snapnode'
 
 // ----
 
-function normalizeEntry (snapDir, entry, index) {
-  if (!entry.name) { entry.name = entry.file }
+function normalizeEntry (snapDir, entry, index = 0) {
   if (!entry.args) { entry.args = [] }
 
   entry.index = index
@@ -25,8 +25,21 @@ function normalizeEntry (snapDir, entry, index) {
   return entry
 }
 
-function reloadConfig (filename, snapDir, state) {
-  const config = fresh(filename, require)
+function reloadConfig (dir, file, state) {
+  const snapDir = path.join(dir, SNAP_DIR)
+  const config = fresh(path.join(dir, file), require)
+
+  // if the file doesn't export anything, treat it as a script
+  if (JSON.stringify(config) === '{}') {
+    state.entries = [
+      normalizeEntry(snapDir, {
+        file,
+        args: process.argv.slice(3)
+      })
+    ]
+    return
+  }
+
   state.entries = config.entries.map(normalizeEntry.bind(null, snapDir))
 }
 
@@ -34,12 +47,11 @@ function start (dir, file) {
   console.log('starting', dir, file)
 
   // TODO: maybe put this in a tmp dir instead
-  const snapDir = path.join(dir, '.snapnode')
+  const snapDir = path.join(dir, SNAP_DIR)
   mkdirp.sync(snapDir)
 
   const state = {}
-  const pathToConfig = path.join(dir, file)
-  reloadConfig(pathToConfig, snapDir, state)
+  reloadConfig(dir, file, state)
 
   app.on('ready', () => {
     const win = new BrowserWindow({
@@ -62,8 +74,8 @@ function start (dir, file) {
       console.log('File changed:', f)
 
       // special case: reload the config if it changed
-      if (f === pathToConfig) {
-        reloadConfig(pathToConfig, snapDir, state)
+      if (f === path.join(dir, file)) {
+        reloadConfig(dir, file, state)
         win.webContents.send('state', JSON.stringify(state))
       }
 

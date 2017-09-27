@@ -35,13 +35,13 @@ export default class Info extends PureComponent {
       func,
       args,
       base,
-      name,
+      file,
       latest
     } = this.props
 
     const heading = module
-      ? Args(`${name} ${func}()`)
-      : Args(`node ${name} `, args.join(' '))
+      ? Args(`${file} ${func}()`)
+      : Args(`node ${file} `, args.join(' '))
 
     return Root(
       heading,
